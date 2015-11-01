@@ -18,8 +18,14 @@ namespace EasyPrinter.Test {
         public static TestClass_SimpleDictionary testClass_Dictionary = new TestClass_SimpleDictionary() { a = new Dictionary<string, int>() { { "a", 1 }, { "b", 2 }, { "c", 3 } } };
         public static TestClass_ComplexDictionary testClass_ComplexDictionary = new TestClass_ComplexDictionary { a = new Dictionary<TestClass_StringReference, TestClass_OneSimpleMember>() { { new TestClass_StringReference() { a = "a" }, new TestClass_OneSimpleMember() { i = 1 } }, { new TestClass_StringReference() { a = "b" }, new TestClass_OneSimpleMember() { i = 2 } }, { new TestClass_StringReference() { a = "c" }, new TestClass_OneSimpleMember() { i = 3 } } } };
         private static TestClass_Enumeration testClass_Enumeration = new TestClass_Enumeration() { a = new int[] { 0, 1, 2, 3, 4 } };
-        
 
+        private static TestClass_Cycle testClass_CycleA = new TestClass_Cycle() { name = "a", nextObject = null };
+        private static TestClass_Cycle testClass_CycleB = new TestClass_Cycle() { name = "b", nextObject = testClass_CycleA };
+        private static TestClass_Cycle testClass_CycleC = new TestClass_Cycle() { name = "c", nextObject = testClass_CycleB };
+
+        static MainTestingBattery() {
+            testClass_CycleA.nextObject = testClass_CycleC;
+        }
 
         private static List<ExpectedTestResult> expectedResults = new List<ExpectedTestResult>(){
             new ExpectedTestResult() {testName = "Null Test", toPerform = (a) => a.EasyPrint(), input = null, expectedOutput = "null",  expectedMS = NORMAL_TIME },
@@ -33,7 +39,8 @@ namespace EasyPrinter.Test {
             new ExpectedTestResult() {testName = "Empty Dictionary Object Class Test", toPerform = (a) => a.EasyPrint(), input = testClass_EmptyDictionary, expectedOutput = "{TestClass_SimpleDictionary: a = [Dictionary`2 0]}",  expectedMS = NORMAL_TIME },
             new ExpectedTestResult() {testName = "Dictionary Object Class Test", toPerform = (a) => a.EasyPrint(), input = testClass_Dictionary, expectedOutput = "{TestClass_SimpleDictionary: a = [Dictionary`2 3: \"a\" => 1, \"b\" => 2, \"c\" => 3]}",  expectedMS = NORMAL_TIME },
             new ExpectedTestResult() {testName = "Complex Dictionary Object Class Test", toPerform = (a) => a.EasyPrint(), input = testClass_ComplexDictionary, expectedOutput = "{TestClass_ComplexDictionary: a = [Dictionary`2 3: {TestClass_StringReference: a = \"a\"} => {TestClass_OneSimpleMember: i = 1}, {TestClass_StringReference: a = \"b\"} => {TestClass_OneSimpleMember: i = 2}, {TestClass_StringReference: a = \"c\"} => {TestClass_OneSimpleMember: i = 3}]}",  expectedMS = NORMAL_TIME },
-            new ExpectedTestResult() {testName = "Enumeration Object Class Test", toPerform = (a) => a.EasyPrint(), input = testClass_Enumeration, expectedOutput = "{TestClass_Enumeration: a = [Int32[] 5: 0, 1, 2, 3, 4]}",  expectedMS = NORMAL_TIME }
+            new ExpectedTestResult() {testName = "Enumeration Object Class Test", toPerform = (a) => a.EasyPrint(), input = testClass_Enumeration, expectedOutput = "{TestClass_Enumeration: a = [Int32[] 5: 0, 1, 2, 3, 4]}",  expectedMS = NORMAL_TIME },
+            new ExpectedTestResult() {testName = "Cycle Test", toPerform = (a) => a.EasyPrint(), input = testClass_CycleA, expectedOutput = "{TestClass_Cycle: name = \"a\", nextObject = {TestClass_Cycle: name = \"c\", nextObject = {TestClass_Cycle: name = \"b\", nextObject = TestClass_Cycle see above}}}",  expectedMS = NORMAL_TIME }
         };
         
         protected override List<ExpectedTestResult> getExpectedResults() {

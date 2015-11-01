@@ -52,5 +52,10 @@ namespace EasyPrinter.Test {
     internal class TestClass_Enumeration {
         public int[] a;
     }
+
+    internal class TestClass_Cycle {
+        public string name;
+        public object nextObject;
+    }
 }
 
