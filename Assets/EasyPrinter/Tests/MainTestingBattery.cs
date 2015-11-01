@@ -5,7 +5,7 @@ using System.Collections.Generic;
 namespace EasyPrinter.Test {
     internal class MainTestingBattery : TestingFramework {
 
-        private const int NORMAL_TIME = 10;
+        private const int NORMAL_TIME = 1;
 
         private static TestClass_NoMembers testClass_NoMembers = new TestClass_NoMembers();
         private static TestStruct_NoMembers testStruct_NoMembers = new TestStruct_NoMembers();
@@ -18,7 +18,7 @@ namespace EasyPrinter.Test {
         public static TestClass_SimpleDictionary testClass_Dictionary = new TestClass_SimpleDictionary() { a = new Dictionary<string, int>() { { "a", 1 }, { "b", 2 }, { "c", 3 } } };
         public static TestClass_ComplexDictionary testClass_ComplexDictionary = new TestClass_ComplexDictionary { a = new Dictionary<TestClass_StringReference, TestClass_OneSimpleMember>() { { new TestClass_StringReference() { a = "a" }, new TestClass_OneSimpleMember() { i = 1 } }, { new TestClass_StringReference() { a = "b" }, new TestClass_OneSimpleMember() { i = 2 } }, { new TestClass_StringReference() { a = "c" }, new TestClass_OneSimpleMember() { i = 3 } } } };
         private static TestClass_Enumeration testClass_Enumeration = new TestClass_Enumeration() { a = new int[] { 0, 1, 2, 3, 4 } };
-
+        
 
 
         private static List<ExpectedTestResult> expectedResults = new List<ExpectedTestResult>(){

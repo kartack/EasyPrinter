@@ -33,7 +33,7 @@ namespace EasyPrinter.Test {
 
 
     public class ExpectedTestResult {
-        public const long TIME_OUT_FACTOR = 10;
+        public const long TIME_OUT_FACTOR = 100;
 
         public string testName = null;
         public string expectedOutput = null;
@@ -74,6 +74,12 @@ namespace EasyPrinter.Test {
                     "and shut down Unity Forcably after you are done looking at the report.");
 #endif
                 testTime = stoppedTime - startTime;
+            }
+            
+            //if we didn't kill the thread because it ran for too long then get more accurate timing info by running it on this thread
+            if(stoppedTime <= 0) {
+                this.runTest();
+                testTime = endTime - startTime;
             }
             
             TestResultCode testResultCode = TestResultCode.PASSED;
