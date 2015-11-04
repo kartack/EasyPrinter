@@ -31,6 +31,21 @@ namespace EasyPrinter.Test {
         }
     }
 
+    public static class StringExtensions {
+        public static string ToCharListString(this string a) {
+            StringBuilder toRet = new StringBuilder();
+            bool isFirst = true;
+            foreach(var cur in a) {
+                if (isFirst) {
+                    isFirst = false;
+                } else {
+                    toRet.Append(", ");
+                }
+                toRet.Append(((int)cur).ToString("X"));
+            }
+            return toRet.ToString();
+        }
+    }
 
     public class ExpectedTestResult {
         public const long TIME_OUT_FACTOR = 100;
@@ -127,16 +142,18 @@ namespace EasyPrinter.Test {
             switch (this.testResultCode) {
                 case TestResultCode.PASSED:
                     toAddTo.Append("Passed");
-                    break;
+                    break; 
 
                 case TestResultCode.WRONG_OUTPUT:
                     toAddTo.Append("Failed Wrong Output\n")
-                        .Append("  Expected:\n    ").Append(this.expectedResult.expectedOutput == null ? "expected output is null" : this.expectedResult.expectedOutput.Replace("\n","    \n")).Append("\n")
-                        .Append("  Actual:\n    ").Append(this.output == null ? "output is null" : this.output.Replace("\n", "    \n"));
+                        .Append("  Expected:\n    ").Append(this.expectedResult.expectedOutput == null ? "expected output is null" : this.expectedResult.expectedOutput.Replace("\n", "\n    ")).Append("\n")
+                        .Append("  Actual:\n    ").Append(this.output == null ? "output is null" : this.output.Replace("\n", "\n    ")).Append("\n  ");
+                    //toAddTo.Append("  Expected Chars: ").Append(this.expectedResult.expectedOutput == null ? "expected output is null" : this.expectedResult.expectedOutput.ToCharListString()).Append("\n  ")
+                    //.Append("  Actual Chars:     ").Append(this.output == null ? "output is null" : this.output.ToCharListString());
                     break;
 
                 case TestResultCode.ERROR:
-                    toAddTo.Append("Failed Exception\n    ").Append(this.error == null ? "null" : this.error.Replace("\n", "    \n"));
+                    toAddTo.Append("Failed Exception\n    ").Append(this.error == null ? "null" : this.error.Replace("\n", "\n    "));
                     break;
 
                 case TestResultCode.TIME_OUT:

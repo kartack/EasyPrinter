@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System;
 
 namespace EasyPrinter {
-    internal struct ConvertedObject {
+    internal class ConvertedObject {
         public string name;
         public List<KeyValuePair<string, object>> fields;
 
@@ -16,12 +16,12 @@ namespace EasyPrinter {
         }
     }
 
-    internal struct ConvertedList {
+    internal class ConvertedList {
         public string name;
         public List<object> values;
     }
 
-    internal struct ConvertedMap {
+    internal class ConvertedMap {
         public string name;
         public List<KeyValuePair<object, object>> values;
     }
@@ -30,6 +30,10 @@ namespace EasyPrinter {
         private static HashSet<object> previouslyViewedObjects = null;
 
         internal static ConvertedObject ConvertObject(object toConvert) {
+            if (object.ReferenceEquals(toConvert, null)) {
+                return null;
+            }
+
             if (previouslyViewedObjects == null) {
                 previouslyViewedObjects = new HashSet<object>();
             } else {
@@ -65,7 +69,7 @@ namespace EasyPrinter {
 
         private static object ProduceFieldEntry(object toProduceFor) {
             if (object.ReferenceEquals(toProduceFor, null)) {
-                return "null";
+                return null;
             }
 
             if (toProduceFor is string) {
