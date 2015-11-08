@@ -14,14 +14,17 @@ namespace EasyPrinter.Test {
         private static TestClass_StringReference testClass_StringReference = new TestClass_StringReference() { a = "hello" };
         private static TestClass_ObjectReference testClass_ObjectReference = new TestClass_ObjectReference() { a = testClass_OneSimpleMember };
         private static TestClass_Property testClass_Property = new TestClass_Property() { a = 1, b = 2, d = 4 };
-        public static TestClass_SimpleDictionary testClass_EmptyDictionary = new TestClass_SimpleDictionary() { a = new Dictionary<string, int>() };
-        public static TestClass_SimpleDictionary testClass_Dictionary = new TestClass_SimpleDictionary() { a = new Dictionary<string, int>() { { "a", 1 }, { "b", 2 }, { "c", 3 } } };
-        public static TestClass_ComplexDictionary testClass_ComplexDictionary = new TestClass_ComplexDictionary { a = new Dictionary<TestClass_StringReference, TestClass_OneSimpleMember>() { { new TestClass_StringReference() { a = "a" }, new TestClass_OneSimpleMember() { i = 1 } }, { new TestClass_StringReference() { a = "b" }, new TestClass_OneSimpleMember() { i = 2 } }, { new TestClass_StringReference() { a = "c" }, new TestClass_OneSimpleMember() { i = 3 } } } };
+        private static TestClass_SimpleDictionary testClass_EmptyDictionary = new TestClass_SimpleDictionary() { a = new Dictionary<string, int>() };
+        private static TestClass_SimpleDictionary testClass_Dictionary = new TestClass_SimpleDictionary() { a = new Dictionary<string, int>() { { "a", 1 }, { "b", 2 }, { "c", 3 } } };
+        private static TestClass_ComplexDictionary testClass_ComplexDictionary = new TestClass_ComplexDictionary { a = new Dictionary<TestClass_StringReference, TestClass_OneSimpleMember>() { { new TestClass_StringReference() { a = "a" }, new TestClass_OneSimpleMember() { i = 1 } }, { new TestClass_StringReference() { a = "b" }, new TestClass_OneSimpleMember() { i = 2 } }, { new TestClass_StringReference() { a = "c" }, new TestClass_OneSimpleMember() { i = 3 } } } };
         private static TestClass_Enumeration testClass_Enumeration = new TestClass_Enumeration() { a = new int[] { 0, 1, 2, 3, 4 } };
+        private static TestClass_LocalExclusions testClass_LocalExclusions = new TestClass_LocalExclusions() { a = 1, b = 2, c = 3, d = 4 };
 
         private static TestClass_Cycle testClass_CycleA = new TestClass_Cycle() { name = "a", nextObject = null };
         private static TestClass_Cycle testClass_CycleB = new TestClass_Cycle() { name = "b", nextObject = testClass_CycleA };
         private static TestClass_Cycle testClass_CycleC = new TestClass_Cycle() { name = "c", nextObject = testClass_CycleB };
+
+        private static TestClass_Cycle testClassMakingSureThingsDontCarry = new TestClass_Cycle { name = "a", nextObject = testClass_LocalExclusions };
 
         static MainTestingBattery() {
             testClass_CycleA.nextObject = testClass_CycleC;
@@ -54,8 +57,15 @@ namespace EasyPrinter.Test {
             new ExpectedTestResult() {testName = "Dictionary Object Class Test", toPerform = (a) => a.EasyPrintMultiline(), input = testClass_Dictionary, expectedOutput = "TestClass_SimpleDictionary:\n  a = Dictionary`2 3:\n    \"a\" => 1\n    \"b\" => 2\n    \"c\" => 3",  expectedMS = NORMAL_TIME },
             new ExpectedTestResult() {testName = "Complex Dictionary Object Class Test", toPerform = (a) => a.EasyPrintMultiline(), input = testClass_ComplexDictionary, expectedOutput = "TestClass_ComplexDictionary:\n  a = Dictionary`2 3:\n    TestClass_StringReference:\n      a = \"a\" => TestClass_OneSimpleMember:\n      i = 1\n    TestClass_StringReference:\n      a = \"b\" => TestClass_OneSimpleMember:\n      i = 2\n    TestClass_StringReference:\n      a = \"c\" => TestClass_OneSimpleMember:\n      i = 3",  expectedMS = NORMAL_TIME },
             new ExpectedTestResult() {testName = "Enumeration Object Class Test", toPerform = (a) => a.EasyPrintMultiline(), input = testClass_Enumeration, expectedOutput = "TestClass_Enumeration:\n  a = Int32[] 5:\n    0\n    1\n    2\n    3\n    4",  expectedMS = NORMAL_TIME },
-            new ExpectedTestResult() {testName = "Cycle Test", toPerform = (a) => a.EasyPrintMultiline(), input = testClass_CycleA, expectedOutput = "TestClass_Cycle:\n  name = \"a\"\n  nextObject = TestClass_Cycle:\n    name = \"c\"\n    nextObject = TestClass_Cycle:\n      name = \"b\"\n      nextObject = TestClass_Cycle see above",  expectedMS = NORMAL_TIME }
+            new ExpectedTestResult() {testName = "Cycle Test", toPerform = (a) => a.EasyPrintMultiline(), input = testClass_CycleA, expectedOutput = "TestClass_Cycle:\n  name = \"a\"\n  nextObject = TestClass_Cycle:\n    name = \"c\"\n    nextObject = TestClass_Cycle:\n      name = \"b\"\n      nextObject = TestClass_Cycle see above",  expectedMS = NORMAL_TIME },
 
+            new ExpectedTestResult() {testName = "Local Exclusion Object No Exclusions", toPerform = (a) => a.EasyPrint(), input = testClass_LocalExclusions, expectedOutput = "{TestClass_LocalExclusions: a = 1, b = 2, c = 3, d = 4}",  expectedMS = NORMAL_TIME },
+            new ExpectedTestResult() {testName = "Local Exclusion Object No Exclusions Print Only", toPerform = (a) => a.EasyPrintPrintOnly(), input = testClass_LocalExclusions, expectedOutput = "{TestClass_LocalExclusions}",  expectedMS = NORMAL_TIME },
+            new ExpectedTestResult() {testName = "Local Exclusion Object No Exclusions Dont Print", toPerform = (a) => a.EasyPrintDontPrint(), input = testClass_LocalExclusions, expectedOutput = "{TestClass_LocalExclusions: a = 1, b = 2, c = 3, d = 4}",  expectedMS = NORMAL_TIME },
+            new ExpectedTestResult() {testName = "Local Exclusion Object AC Print Only", toPerform = (a) => a.EasyPrintPrintOnly("a", "c"), input = testClass_LocalExclusions, expectedOutput = "{TestClass_LocalExclusions: a = 1, c = 3}",  expectedMS = NORMAL_TIME },
+            new ExpectedTestResult() {testName = "Local Exclusion Object AC Dont Print", toPerform = (a) => a.EasyPrintDontPrint("b", "d"), input = testClass_LocalExclusions, expectedOutput = "{TestClass_LocalExclusions: a = 1, c = 3}",  expectedMS = NORMAL_TIME },
+            new ExpectedTestResult() {testName = "Local Exclusion Object Make Sure Print Only Doesn't Carry on", toPerform = (a) => a.EasyPrintDontPrint("name", "d"), input = testClassMakingSureThingsDontCarry, expectedOutput = "{TestClass_Cycle: nextObject = {TestClass_LocalExclusions: a = 1, b = 2, c = 3, d = 4}}",  expectedMS = NORMAL_TIME },
+            new ExpectedTestResult() {testName = "Local Exclusion Object Make Sure Dont Print Doesn't Carry on", toPerform = (a) => a.EasyPrintPrintOnly("nextObject", "d"), input = testClassMakingSureThingsDontCarry, expectedOutput = "{TestClass_Cycle: nextObject = {TestClass_LocalExclusions: a = 1, b = 2, c = 3, d = 4}}",  expectedMS = NORMAL_TIME }
         };
         
         protected override List<ExpectedTestResult> getExpectedResults() {

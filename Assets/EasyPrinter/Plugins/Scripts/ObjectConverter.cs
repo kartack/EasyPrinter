@@ -29,32 +29,39 @@ namespace EasyPrinter {
     internal class ObjectConverter {
         private static HashSet<object> previouslyViewedObjects = null;
 
-        internal static ConvertedObject ConvertObject(object toConvert) {
+        internal static ConvertedObject ConvertObject(object toConvert, List<string> toPrint) {
             if (object.ReferenceEquals(toConvert, null)) {
                 return null;
             }
-
+            
             if (previouslyViewedObjects == null) {
                 previouslyViewedObjects = new HashSet<object>();
             } else {
                 previouslyViewedObjects.Clear();
             }
 
-            return ProduceConvetedObject(toConvert);
+            return ProduceConvetedObject(toConvert, toPrint);
         }
 
-        private static ConvertedObject ProduceConvetedObject(object toConvert) {
+        private static ConvertedObject ProduceConvetedObject(object toConvert, List<string> toPrint = null) {
             previouslyViewedObjects.Add(toConvert);
+
+            if(toPrint == null) {
+                toPrint = AttributeExtensions.GetListOfFieldsToPrint(toConvert);
+            }
 
             ConvertedObject toRet = ConvertedObject.StartNewConvertedObject(toConvert);
             System.Type toConvertType = toConvert.GetType();
 
             foreach (var curField in toConvertType.GetFields()) {
-                toRet.fields.Add(new KeyValuePair<string, object>(curField.Name, ProduceFieldEntry(curField.GetValue(toConvert))));
+                if(toPrint == null || toPrint.Contains(curField.Name)) {
+                    toRet.fields.Add(new KeyValuePair<string, object>(curField.Name, ProduceFieldEntry(curField.GetValue(toConvert))));
+                }
+                
             }
             
             foreach (var curProperty in toConvertType.GetProperties()) {
-                if (curProperty.CanRead) {
+                if (curProperty.CanRead && (toPrint == null || toPrint.Contains(curProperty.Name))) {
                     toRet.fields.Add(new KeyValuePair<string, object>(curProperty.Name, ProduceFieldEntry(curProperty.GetValue(toConvert, null))));
                 }
             }

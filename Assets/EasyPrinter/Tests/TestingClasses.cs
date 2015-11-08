@@ -57,5 +57,12 @@ namespace EasyPrinter.Test {
         public string name;
         public object nextObject;
     }
+
+    internal class TestClass_LocalExclusions {
+        public int a;
+        public int b;
+        public int c { get; set; }
+        public int d { get; set; }
+    }
 }
 
