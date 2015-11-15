@@ -26,6 +26,11 @@ namespace EasyPrinter.Test {
 
         private static TestClass_Cycle testClassMakingSureThingsDontCarry = new TestClass_Cycle { name = "a", nextObject = testClass_LocalExclusions };
 
+        private static TestClass_PrintOnlyClassAttribute testClassForPrintOnlyClassAttribute = new TestClass_PrintOnlyClassAttribute() { a = 1, b = 2, c = 3, d = 4 };
+        private static TestClass_DontPrintClassAttribute testClassForDontPrintClassAttribute = new TestClass_DontPrintClassAttribute() { a = 1, b = 2, c = 3, d = 4 };
+        private static TestClass_PrintOnlyFieldAttribute testClassForPrintOnlyFieldAttribute = new TestClass_PrintOnlyFieldAttribute() { a = 1, b = 2, c = 3, d = 4 };
+        private static TestClass_DontPrintFieldAttribute testClassForDontPrintFieldAttribute = new TestClass_DontPrintFieldAttribute() { a = 1, b = 2, c = 3, d = 4 };
+
         static MainTestingBattery() {
             testClass_CycleA.nextObject = testClass_CycleC;
         }
@@ -65,8 +70,13 @@ namespace EasyPrinter.Test {
             new ExpectedTestResult() {testName = "Local Exclusion Object AC Print Only", toPerform = (a) => a.EasyPrintPrintOnly("a", "c"), input = testClass_LocalExclusions, expectedOutput = "{TestClass_LocalExclusions: a = 1, c = 3}",  expectedMS = NORMAL_TIME },
             new ExpectedTestResult() {testName = "Local Exclusion Object AC Dont Print", toPerform = (a) => a.EasyPrintDontPrint("b", "d"), input = testClass_LocalExclusions, expectedOutput = "{TestClass_LocalExclusions: a = 1, c = 3}",  expectedMS = NORMAL_TIME },
             new ExpectedTestResult() {testName = "Local Exclusion Object Make Sure Print Only Doesn't Carry on", toPerform = (a) => a.EasyPrintDontPrint("name", "d"), input = testClassMakingSureThingsDontCarry, expectedOutput = "{TestClass_Cycle: nextObject = {TestClass_LocalExclusions: a = 1, b = 2, c = 3, d = 4}}",  expectedMS = NORMAL_TIME },
-            new ExpectedTestResult() {testName = "Local Exclusion Object Make Sure Dont Print Doesn't Carry on", toPerform = (a) => a.EasyPrintPrintOnly("nextObject", "d"), input = testClassMakingSureThingsDontCarry, expectedOutput = "{TestClass_Cycle: nextObject = {TestClass_LocalExclusions: a = 1, b = 2, c = 3, d = 4}}",  expectedMS = NORMAL_TIME }
-        };
+            new ExpectedTestResult() {testName = "Local Exclusion Object Make Sure Dont Print Doesn't Carry on", toPerform = (a) => a.EasyPrintPrintOnly("nextObject", "d"), input = testClassMakingSureThingsDontCarry, expectedOutput = "{TestClass_Cycle: nextObject = {TestClass_LocalExclusions: a = 1, b = 2, c = 3, d = 4}}",  expectedMS = NORMAL_TIME },
+
+            new ExpectedTestResult() {testName = "Print Only Class Attribute", toPerform = (a) => a.EasyPrint(), input = testClassForPrintOnlyClassAttribute, expectedOutput = "{TestClass_PrintOnlyClassAttribute: a = 1, b = 2}",  expectedMS = NORMAL_TIME },
+            new ExpectedTestResult() {testName = "Dont Print Class Attribute", toPerform = (a) => a.EasyPrint(), input = testClassForDontPrintClassAttribute, expectedOutput = "{TestClass_DontPrintClassAttribute: c = 3, d = 4}",  expectedMS = NORMAL_TIME },
+            new ExpectedTestResult() {testName = "Print Only Field Attribute", toPerform = (a) => a.EasyPrint(), input = testClassForPrintOnlyFieldAttribute, expectedOutput = "{TestClass_PrintOnlyFieldAttribute: a = 1, b = 2}",  expectedMS = NORMAL_TIME },
+            new ExpectedTestResult() {testName = "Dont Print Field Attribute", toPerform = (a) => a.EasyPrint(), input = testClassForDontPrintFieldAttribute, expectedOutput = "{TestClass_DontPrintFieldAttribute: c = 3, d = 4}",  expectedMS = NORMAL_TIME }
+        }; 
         
         protected override List<ExpectedTestResult> getExpectedResults() {
             return expectedResults;

@@ -6,20 +6,26 @@ using System.Reflection;
 
 namespace EasyPrinter {
     
-    [AttributeUsage(AttributeTargets.All)]
-    public class PrintOnly : System.Attribute {
+    public class EasyPrinterAttributeRoot : Attribute {
         internal List<string> ourParams = null;
-        public PrintOnly(params string[] appliesTo) {
+        internal bool inherits = true;
+
+        public EasyPrinterAttributeRoot(bool inherits, params string[] appliesTo) {
+            this.inherits = inherits;
             this.ourParams = AttributeExtensions.ConvertToStringList(appliesTo);
         }
     }
 
     [AttributeUsage(AttributeTargets.All)]
-    public class DontPrint : System.Attribute {
-        internal List<string> ourParams = null;
-        public DontPrint(params string[] appliesTo) {
-            this.ourParams = AttributeExtensions.ConvertToStringList(appliesTo);
-        }
+    public class PrintOnly : EasyPrinterAttributeRoot {
+        public PrintOnly(params string[] appliesTo) : this(true, appliesTo) { }
+        public PrintOnly(bool inherits, params string[] appliesTo) : base(inherits, appliesTo) {}
+    }
+
+    [AttributeUsage(AttributeTargets.All)]
+    public class DontPrint : EasyPrinterAttributeRoot {
+        public DontPrint(params string[] appliesTo) : this(true, appliesTo){}
+        public DontPrint(bool inherits, params string[] appliesTo) : base(inherits, appliesTo) {}
     }
 
     internal enum InputListType { NONE, PRINT_ONLY, DONT_PRINT}
@@ -65,6 +71,33 @@ namespace EasyPrinter {
             return toRet;
         }
 
+        private static bool[] ALL_BOOL_VALUES = new bool[] { false, true };
+        private static List<string> GetAllFieldNamesWithAttribute<T>(object obj) where T : EasyPrinterAttributeRoot {
+            List<string> toRet = new List<string>();
+            
+            //check the root object for the tag
+            foreach(var curInheritance in ALL_BOOL_VALUES) {
+                foreach (T cur in obj.GetType().GetCustomAttributes(typeof(T), curInheritance)) {//check for both inheriting and non-inheriting tags
+                    if (cur.inherits == curInheritance) {
+                        toRet.AddRange(cur.ourParams);
+                    }
+                }
+            }
+            
+            //now check all its fields
+            foreach(var curField in GetFieldsAndProperties(obj)) {
+                foreach (var curInheritance in ALL_BOOL_VALUES) {
+                    foreach (T cur in curField.GetCustomAttributes(typeof(T), curInheritance)) {//first check for inheriting tags
+                        if (cur.inherits == curInheritance) {
+                            toRet.Add(curField.Name);
+                        }
+                    }
+                }
+            }
+
+            return toRet;
+        }
+
         private static List<string> GetNamesOfAllFieldsAndParameters(object obj) {
             List<string> toRet = new List<string>();
             foreach(var c in AttributeExtensions.GetFieldsAndProperties(obj)) {
@@ -96,7 +129,20 @@ namespace EasyPrinter {
                         return null;
                     }
                 case InputListType.NONE:
-                    return null;//TODO: Add in processing actual tags on fields in the class
+                    if (ReferenceEquals(obj, null)) {
+                        return null;
+                    }
+
+                    List<string> printOnlyFields = AttributeExtensions.GetAllFieldNamesWithAttribute<PrintOnly>(obj);
+                    List<string> dontPrintFields = AttributeExtensions.GetAllFieldNamesWithAttribute<DontPrint>(obj);
+
+                    if(printOnlyFields.Count > 0 && dontPrintFields.Count > 0) {
+                        throw new System.ArgumentException("You are trying to print an object that has both DontPrint and PrintOnly fields, we can't do both. Check your class definition, all fields, all properties, to correct. You can also use EasyPrintPrintOnly or EasyPrintDontPrint to avoid this. Also be sure to check all classes and interfaces you inheirt from.");
+                    } else if(printOnlyFields.Count > 0){
+                        return printOnlyFields;
+                    } else {
+                        return AttributeExtensions.RemoveAll(AttributeExtensions.GetNamesOfAllFieldsAndParameters(obj), dontPrintFields);
+                    }
                 default:
                     throw new ArgumentException("GetListOfFieldsToPrint given a non-null input list but not given a InputListType we know, listType = " + listType);                   
             }

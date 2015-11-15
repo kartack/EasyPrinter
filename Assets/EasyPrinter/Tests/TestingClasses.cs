@@ -64,5 +64,39 @@ namespace EasyPrinter.Test {
         public int c { get; set; }
         public int d { get; set; }
     }
+
+    [PrintOnly("a,b")]
+    internal class TestClass_PrintOnlyClassAttribute {
+        public int a;
+        public int b;
+        public int c;
+        public int d;
+    }
+
+    [DontPrint("a,b")]
+    internal class TestClass_DontPrintClassAttribute {
+        public int a;
+        public int b;
+        public int c;
+        public int d;
+    }
+
+    internal class TestClass_PrintOnlyFieldAttribute {
+        [PrintOnly]
+        public int a;
+        [PrintOnly]
+        public int b;
+        public int c;
+        public int d;
+    }
+
+    internal class TestClass_DontPrintFieldAttribute {
+        [DontPrint]
+        public int a;
+        [DontPrint]
+        public int b;
+        public int c;
+        public int d;
+    }
 }
 
