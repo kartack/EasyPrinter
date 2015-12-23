@@ -98,5 +98,86 @@ namespace EasyPrinter.Test {
         public int c;
         public int d;
     }
-}
 
+    [DontPrint]
+    [PrintOnly]
+    internal class TestClass_BothDontPrintAndPrintOnlyBothOnClassNotInherited {
+        public int a;
+        public int b;
+    }
+    
+    internal class TestClass_BothDontPrintAndPrintOnlyBothOnFieldsNotInherited {
+        [DontPrint]
+        public int a;
+        [PrintOnly]
+        public int b;
+    }
+
+    [DontPrint]
+    internal class TestClass_BothDontPrintAndPrintOnlyMixedNotInheritedA {
+        public int a;
+        [PrintOnly]
+        public int b;
+    }
+
+    [PrintOnly]
+    internal class TestClass_BothDontPrintAndPrintOnlyMixedNotInheritedB {
+        public int a;
+        [DontPrint]
+        public int b;
+    }
+
+    [PrintOnly(true, "a")]
+    internal class TestClass_PrintOnlyInheritedClass{
+        public int a;
+        public int b;
+    }
+    
+    [DontPrint(false, "b")]
+    internal class TestClass_DontPrintNotInheritedClass {
+        public int a;
+        public int b;
+    }
+    
+    internal class TestClass_PrintOnlyNotInheritedField {
+        [PrintOnly(false)]
+        public int a;
+        public int b;
+    }
+
+    internal class TestClass_DontPrintInheritedField {
+        public int a;
+        [DontPrint(true)]
+        public int b;
+    }
+    
+    [DontPrint]
+    internal class TestClass_ExceptionBothOnRoot : TestClass_PrintOnlyInheritedClass {
+        public int c;
+    }
+
+    [PrintOnly("c")]
+    internal class TestClass_NoExceptionSameOnRoot : TestClass_PrintOnlyInheritedClass {
+        public int c;
+    }
+
+    [PrintOnly("c")]
+    internal class TestClass_NoExceptionNonInehritedOnRoot : TestClass_DontPrintNotInheritedClass {
+        public int c;
+    }
+    
+    internal class TestClass_ExceptionOnOnRootOneOnMember : TestClass_PrintOnlyInheritedClass {
+        [DontPrint]
+        public int c;
+    }
+    
+    internal class TestClass_ExceptionSameOnRootAsOnField : TestClass_PrintOnlyInheritedClass {
+        [PrintOnly]
+        public int c;
+    }
+
+    internal class TestClass_NoExceptionNonInehritedOnRootAndOnField : TestClass_DontPrintNotInheritedClass {
+        [PrintOnly]
+        public int c;
+    }
+}

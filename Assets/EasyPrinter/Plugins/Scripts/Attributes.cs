@@ -71,15 +71,20 @@ namespace EasyPrinter {
             return toRet;
         }
 
+        private struct AttributeReport {
+            public bool hasAttribute;
+            public List<string> markedFields;
+        }
         private static bool[] ALL_BOOL_VALUES = new bool[] { false, true };
-        private static List<string> GetAllFieldNamesWithAttribute<T>(object obj) where T : EasyPrinterAttributeRoot {
-            List<string> toRet = new List<string>();
+        private static AttributeReport GetAttributeReport<T>(object obj) where T : EasyPrinterAttributeRoot {
+            AttributeReport toRet = new AttributeReport(){hasAttribute = false, markedFields = new List<string>()};
             
             //check the root object for the tag
             foreach(var curInheritance in ALL_BOOL_VALUES) {
                 foreach (T cur in obj.GetType().GetCustomAttributes(typeof(T), curInheritance)) {//check for both inheriting and non-inheriting tags
                     if (cur.inherits == curInheritance) {
-                        toRet.AddRange(cur.ourParams);
+                        toRet.hasAttribute = true;
+                        toRet.markedFields.AddRange(cur.ourParams);
                     }
                 }
             }
@@ -89,7 +94,8 @@ namespace EasyPrinter {
                 foreach (var curInheritance in ALL_BOOL_VALUES) {
                     foreach (T cur in curField.GetCustomAttributes(typeof(T), curInheritance)) {//first check for inheriting tags
                         if (cur.inherits == curInheritance) {
-                            toRet.Add(curField.Name);
+                            toRet.hasAttribute = true;
+                            toRet.markedFields.Add(curField.Name);
                         }
                     }
                 }
@@ -133,15 +139,15 @@ namespace EasyPrinter {
                         return null;
                     }
 
-                    List<string> printOnlyFields = AttributeExtensions.GetAllFieldNamesWithAttribute<PrintOnly>(obj);
-                    List<string> dontPrintFields = AttributeExtensions.GetAllFieldNamesWithAttribute<DontPrint>(obj);
+                    AttributeReport printOnlyFields = AttributeExtensions.GetAttributeReport<PrintOnly>(obj);
+                    AttributeReport dontPrintFields = AttributeExtensions.GetAttributeReport<DontPrint>(obj);
 
-                    if(printOnlyFields.Count > 0 && dontPrintFields.Count > 0) {
-                        throw new System.ArgumentException("You are trying to print an object that has both DontPrint and PrintOnly fields, we can't do both. Check your class definition, all fields, all properties, to correct. You can also use EasyPrintPrintOnly or EasyPrintDontPrint to avoid this. Also be sure to check all classes and interfaces you inheirt from.");
-                    } else if(printOnlyFields.Count > 0){
-                        return printOnlyFields;
+                    if(printOnlyFields.hasAttribute && dontPrintFields.hasAttribute) {
+                        throw new System.ArgumentException("We are trying to print an object of type: "+obj.GetType().FullName+". You are trying to print an object that has both DontPrint and PrintOnly fields, we can't do both. Check your class definition, all fields, all properties, to correct. You can also use EasyPrintPrintOnly or EasyPrintDontPrint to avoid this. Also be sure to check all classes and interfaces you inheirt from.");
+                    } else if(printOnlyFields.hasAttribute){
+                        return printOnlyFields.markedFields;
                     } else {
-                        return AttributeExtensions.RemoveAll(AttributeExtensions.GetNamesOfAllFieldsAndParameters(obj), dontPrintFields);
+                        return AttributeExtensions.RemoveAll(AttributeExtensions.GetNamesOfAllFieldsAndParameters(obj), dontPrintFields.markedFields);
                     }
                 default:
                     throw new ArgumentException("GetListOfFieldsToPrint given a non-null input list but not given a InputListType we know, listType = " + listType);                   
