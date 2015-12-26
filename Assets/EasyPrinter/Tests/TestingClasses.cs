@@ -171,7 +171,7 @@ namespace EasyPrinter.Test {
         public int c;
     }
     
-    internal class TestClass_ExceptionSameOnRootAsOnField : TestClass_PrintOnlyInheritedClass {
+	internal class TestClass_ExceptionSameOnRootAsOnField : TestClass_DontPrintInheritedField {
         [PrintOnly]
         public int c;
     }

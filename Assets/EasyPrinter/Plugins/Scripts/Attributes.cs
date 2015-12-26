@@ -16,13 +16,13 @@ namespace EasyPrinter {
         }
     }
 
-    [AttributeUsage(AttributeTargets.All)]
+	[AttributeUsage(AttributeTargets.All, AllowMultiple = true)]
     public class PrintOnly : EasyPrinterAttributeRoot {
         public PrintOnly(params string[] appliesTo) : this(true, appliesTo) { }
         public PrintOnly(bool inherits, params string[] appliesTo) : base(inherits, appliesTo) {}
     }
 
-    [AttributeUsage(AttributeTargets.All)]
+	[AttributeUsage(AttributeTargets.All, AllowMultiple = true)]
     public class DontPrint : EasyPrinterAttributeRoot {
         public DontPrint(params string[] appliesTo) : this(true, appliesTo){}
         public DontPrint(bool inherits, params string[] appliesTo) : base(inherits, appliesTo) {}
@@ -77,13 +77,13 @@ namespace EasyPrinter {
         }
         private static bool[] ALL_BOOL_VALUES = new bool[] { false, true };
         private static AttributeReport GetAttributeReport<T>(object obj) where T : EasyPrinterAttributeRoot {
-            AttributeReport toRet = new AttributeReport(){hasAttribute = false, markedFields = new List<string>()};
+			AttributeReport toRet = new AttributeReport(){hasAttribute = false, markedFields = new List<string>()};
             
             //check the root object for the tag
             foreach(var curInheritance in ALL_BOOL_VALUES) {
-                foreach (T cur in obj.GetType().GetCustomAttributes(typeof(T), curInheritance)) {//check for both inheriting and non-inheriting tags
-                    if (cur.inherits == curInheritance) {
-                        toRet.hasAttribute = true;
+				foreach (T cur in obj.GetType().GetCustomAttributes(typeof(T), curInheritance)) {//check for both inheriting and non-inheriting tags
+					if (cur.inherits == curInheritance) {
+		                toRet.hasAttribute = true;
                         toRet.markedFields.AddRange(cur.ourParams);
                     }
                 }
@@ -121,7 +121,7 @@ namespace EasyPrinter {
         }
 
         internal static List<string> GetListOfFieldsToPrint(object obj, string[] inputList = null, InputListType listType = InputListType.NONE) {
-            switch (listType) {
+			switch (listType) {
                 case InputListType.PRINT_ONLY:
                     if (!inputList.IsNullOrEmpty()) {
                         return AttributeExtensions.ConvertToStringList(inputList);
@@ -134,23 +134,24 @@ namespace EasyPrinter {
                     } else {
                         return null;
                     }
-                case InputListType.NONE:
-                    if (ReferenceEquals(obj, null)) {
-                        return null;
-                    }
+			case InputListType.NONE:
+				if (ReferenceEquals (obj, null)) {
+					return null;
+				}
 
-                    AttributeReport printOnlyFields = AttributeExtensions.GetAttributeReport<PrintOnly>(obj);
-                    AttributeReport dontPrintFields = AttributeExtensions.GetAttributeReport<DontPrint>(obj);
+				AttributeReport printOnlyFields = AttributeExtensions.GetAttributeReport<PrintOnly> (obj);
+				AttributeReport dontPrintFields = AttributeExtensions.GetAttributeReport<DontPrint> (obj);
 
-                    if(printOnlyFields.hasAttribute && dontPrintFields.hasAttribute) {
-                        throw new System.ArgumentException("We are trying to print an object of type: "+obj.GetType().FullName+". You are trying to print an object that has both DontPrint and PrintOnly fields, we can't do both. Check your class definition, all fields, all properties, to correct. You can also use EasyPrintPrintOnly or EasyPrintDontPrint to avoid this. Also be sure to check all classes and interfaces you inheirt from.");
-                    } else if(printOnlyFields.hasAttribute){
-                        return printOnlyFields.markedFields;
-                    } else {
-                        return AttributeExtensions.RemoveAll(AttributeExtensions.GetNamesOfAllFieldsAndParameters(obj), dontPrintFields.markedFields);
-                    }
-                default:
-                    throw new ArgumentException("GetListOfFieldsToPrint given a non-null input list but not given a InputListType we know, listType = " + listType);                   
+				if(printOnlyFields.hasAttribute && dontPrintFields.hasAttribute) {
+                    throw new System.ArgumentException("We are trying to print an object of type: "+obj.GetType().FullName+". You are trying to print an object that has both DontPrint and PrintOnly fields, we can't do both. Check your class definition, all fields, all properties, to correct. You can also use EasyPrintPrintOnly or EasyPrintDontPrint to avoid this. Also be sure to check all classes and interfaces you inheirt from.");
+                } else if(printOnlyFields.hasAttribute){
+                    return printOnlyFields.markedFields;
+                } else {
+                    return AttributeExtensions.RemoveAll(AttributeExtensions.GetNamesOfAllFieldsAndParameters(obj), dontPrintFields.markedFields);
+                }
+
+            default:
+                throw new ArgumentException("GetListOfFieldsToPrint given a non-null input list but not given a InputListType we know, listType = " + listType);                   
             }
         }
 
