@@ -29,15 +29,15 @@ namespace EasyPrinter.Test {
     internal class TestClass_Property {
         public int a { get; set; }
 
-        private int _b = 0;
+        [DontPrint]private int _b = 0;
         public int b { get { return _b; } set { _b = value; } }
 
-        private int _c = 0;
+		[DontPrint]private int _c = 0;
         public int c { get { return _c; } }
 
 //the following warning is variable assigned but not used, we do this for testing purposes, I could write something to use the variable but seems cleaner to just do this - Dave
 #pragma warning disable 414
-        private int _d = 0;
+		[DontPrint]private int _d = 0;
         public int d { set { _d = value; } }
     }
 
@@ -141,8 +141,8 @@ namespace EasyPrinter.Test {
     
     internal class TestClass_PrintOnlyNotInheritedField {
         [PrintOnly(false)]
-        public int a;
-        public int b;
+        public int a = 0;
+        public int b = 1;
     }
 
     internal class TestClass_DontPrintInheritedField {
@@ -180,4 +180,20 @@ namespace EasyPrinter.Test {
         [PrintOnly]
         public int c;
     }
+
+	internal class PrivateVarTest {
+		public int a = 0;
+		protected int b = 1;
+		internal int c = 2;
+		private int d = 3;
+		protected internal int e = 4;
+		int f = 5;
+
+		public static int g = 0;
+		protected static int h = 1;
+		internal static int i = 2;
+		private static int j = 3;
+		protected internal static int k = 4;
+		static int l = 5;
+	}
 }

@@ -5,7 +5,7 @@ using System;
 using System.Reflection;
 
 namespace EasyPrinter {
-    
+
     public class EasyPrinterAttributeRoot : Attribute {
         internal List<string> ourParams = null;
         internal bool inherits = true;
@@ -31,7 +31,8 @@ namespace EasyPrinter {
     internal enum InputListType { NONE, PRINT_ONLY, DONT_PRINT}
 
     internal static class AttributeExtensions {
-        private static char[] separatorCharacters = new char[] { ',', ';', '|', '/', '\\', '.' };
+		internal static BindingFlags BINDING_FLAGS_TO_USE_TO_RETRIEVE = BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public;
+		private static char[] separatorCharacters = new char[] { ',', ';', '|', '/', '\\', '.' };
 
         internal static List<String> ConvertToStringList(string[] input) {
             List<string> toRet = new List<string>(input);
@@ -61,11 +62,11 @@ namespace EasyPrinter {
         private static List<MemberInfo> GetFieldsAndProperties(object obj) {
             List<MemberInfo> toRet = new List<MemberInfo>();
             System.Type toConvertType = obj.GetType();
-            foreach (var curField in toConvertType.GetFields()) {
+			foreach (var curField in toConvertType.GetFields(BINDING_FLAGS_TO_USE_TO_RETRIEVE)) {
                 toRet.Add(curField);
             }
 
-            foreach (var curProperty in toConvertType.GetProperties()) {
+			foreach (var curProperty in toConvertType.GetProperties(BINDING_FLAGS_TO_USE_TO_RETRIEVE)) {
                 toRet.Add(curProperty);
             }
             return toRet;

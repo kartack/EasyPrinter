@@ -43,11 +43,13 @@ namespace EasyPrinter.Test {
 		private static TestClass_ExceptionSameOnRootAsOnField testClass_ExceptionSameOnRootAsOnField = new TestClass_ExceptionSameOnRootAsOnField(){a = 0, b = 1, c = 2};
 		private static TestClass_NoExceptionNonInehritedOnRootAndOnField testClass_NoExceptionNonInehritedOnRootAndOnField = new TestClass_NoExceptionNonInehritedOnRootAndOnField(){a = 0, b = 1, c = 2};
 
+		private static PrivateVarTest privateVarTest = new PrivateVarTest ();
+
         static MainTestingBattery() {
             testClass_CycleA.nextObject = testClass_CycleC;
         }
 
-        private static List<ExpectedTestResult> expectedResults = new List<ExpectedTestResult>(){
+		private static List<ExpectedTestResult> expectedResults = new List<ExpectedTestResult>(){
             new ExpectedTestResult() {testName = "Null Test", toPerform = (a) => a.EasyPrint(), input = null, expectedOutput = "null",  expectedMS = NORMAL_TIME },
             new ExpectedTestResult() {testName = "No Variable Class Test", toPerform = (a) => a.EasyPrint(), input = testClass_NoMembers, expectedOutput = "{TestClass_NoMembers}",  expectedMS = NORMAL_TIME },
             new ExpectedTestResult() {testName = "No Variable Struct Test", toPerform = (a) => a.EasyPrint(), input = testStruct_NoMembers, expectedOutput = "{TestStruct_NoMembers}",  expectedMS = NORMAL_TIME },
@@ -100,7 +102,9 @@ namespace EasyPrinter.Test {
 
 			new ExpectedTestResult() {testName = "Both On Root No Exception", toPerform = (a) => a.EasyPrint(), input = testClass_NoExceptionSameOnRoot, expectedOutput = "{TestClass_NoExceptionSameOnRoot: c = 2, a = 0}",  expectedMS = NORMAL_TIME },
 			new ExpectedTestResult() {testName = "Mixed Inheritance No Exception", toPerform = (a) => a.EasyPrint(), input = testClass_NoExceptionNonInehritedOnRoot, expectedOutput = "{TestClass_NoExceptionNonInehritedOnRoot: c = 2}",  expectedMS = NORMAL_TIME },
-			new ExpectedTestResult() {testName = "Both on Filed Inherited No Exception", toPerform = (a) => a.EasyPrint(), input = testClass_NoExceptionNonInehritedOnRootAndOnField, expectedOutput = "{TestClass_NoExceptionNonInehritedOnRootAndOnField: c = 2}",  expectedMS = NORMAL_TIME }
+			new ExpectedTestResult() {testName = "Both on Filed Inherited No Exception", toPerform = (a) => a.EasyPrint(), input = testClass_NoExceptionNonInehritedOnRootAndOnField, expectedOutput = "{TestClass_NoExceptionNonInehritedOnRootAndOnField: c = 2}",  expectedMS = NORMAL_TIME },
+
+			new ExpectedTestResult() {testName = "Various Accessor Type Test", toPerform = (a) => a.EasyPrint(), input = privateVarTest, expectedOutput = "{PrivateVarTest: a = 0, b = 1, c = 2, d = 3, e = 4, f = 5, g = 0, h = 1, i = 2, j = 3, k = 4, l = 5}",  expectedMS = NORMAL_TIME }
 		}; 
         
         protected override List<ExpectedTestResult> getExpectedResults() {

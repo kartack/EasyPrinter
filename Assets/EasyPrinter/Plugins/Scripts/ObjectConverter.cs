@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System;
 
 namespace EasyPrinter {
-    internal class ConvertedObject {
+	internal class ConvertedObject {
         public string name;
         public List<KeyValuePair<string, object>> fields;
 
@@ -27,6 +27,8 @@ namespace EasyPrinter {
     }
 
     internal class ObjectConverter {
+		internal const string BACKING_FIELD_NAME = ">k__BackingField";
+
         private static HashSet<object> previouslyViewedObjects = null;
 
         internal static ConvertedObject ConvertObject(object toConvert, List<string> toPrint) {
@@ -53,14 +55,19 @@ namespace EasyPrinter {
             ConvertedObject toRet = ConvertedObject.StartNewConvertedObject(toConvert);
             System.Type toConvertType = toConvert.GetType();
 
-            foreach (var curField in toConvertType.GetFields()) {
-                if(toPrint == null || toPrint.Contains(curField.Name)) {
+			foreach (var curField in toConvertType.GetFields(AttributeExtensions.BINDING_FLAGS_TO_USE_TO_RETRIEVE)) {
+				//we automatically exclude all backing fields because we include the property that they back,
+				//consider adding a class or field level attribute to override this behaviour, but likely its unecessary.
+				if(curField.Name.Contains(BACKING_FIELD_NAME)){
+					continue;
+				}
+				if(toPrint == null || toPrint.Contains(curField.Name)) {
                     toRet.fields.Add(new KeyValuePair<string, object>(curField.Name, ProduceFieldEntry(curField.GetValue(toConvert))));
                 }
                 
             }
             
-            foreach (var curProperty in toConvertType.GetProperties()) {
+			foreach (var curProperty in toConvertType.GetProperties(AttributeExtensions.BINDING_FLAGS_TO_USE_TO_RETRIEVE)) {
                 if (curProperty.CanRead && (toPrint == null || toPrint.Contains(curProperty.Name))) {
                     toRet.fields.Add(new KeyValuePair<string, object>(curProperty.Name, ProduceFieldEntry(curProperty.GetValue(toConvert, null))));
                 }
