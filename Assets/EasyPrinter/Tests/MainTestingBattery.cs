@@ -43,7 +43,9 @@ namespace EasyPrinter.Test {
 		private static TestClass_ExceptionSameOnRootAsOnField testClass_ExceptionSameOnRootAsOnField = new TestClass_ExceptionSameOnRootAsOnField(){a = 0, b = 1, c = 2};
 		private static TestClass_NoExceptionNonInehritedOnRootAndOnField testClass_NoExceptionNonInehritedOnRootAndOnField = new TestClass_NoExceptionNonInehritedOnRootAndOnField(){a = 0, b = 1, c = 2};
 
-		private static PrivateVarTest privateVarTest = new PrivateVarTest ();
+		private static TestClass_PrivateVarTest testClass_PrivateVarTest = new TestClass_PrivateVarTest ();
+
+		private static TestClass_ToStringTest testClass_ToStringTest = new TestClass_ToStringTest();
 
         static MainTestingBattery() {
             testClass_CycleA.nextObject = testClass_CycleC;
@@ -104,7 +106,9 @@ namespace EasyPrinter.Test {
 			new ExpectedTestResult() {testName = "Mixed Inheritance No Exception", toPerform = (a) => a.EasyPrint(), input = testClass_NoExceptionNonInehritedOnRoot, expectedOutput = "{TestClass_NoExceptionNonInehritedOnRoot: c = 2}",  expectedMS = NORMAL_TIME },
 			new ExpectedTestResult() {testName = "Both on Filed Inherited No Exception", toPerform = (a) => a.EasyPrint(), input = testClass_NoExceptionNonInehritedOnRootAndOnField, expectedOutput = "{TestClass_NoExceptionNonInehritedOnRootAndOnField: c = 2}",  expectedMS = NORMAL_TIME },
 
-			new ExpectedTestResult() {testName = "Various Accessor Type Test", toPerform = (a) => a.EasyPrint(), input = privateVarTest, expectedOutput = "{PrivateVarTest: a = 0, b = 1, c = 2, d = 3, e = 4, f = 5, g = 0, h = 1, i = 2, j = 3, k = 4, l = 5}",  expectedMS = NORMAL_TIME }
+			new ExpectedTestResult() {testName = "Various Accessor Type Test", toPerform = (a) => a.EasyPrint(), input = testClass_PrivateVarTest, expectedOutput = "{TestClass_PrivateVarTest: a = 0, b = 1, c = 2, d = 3, e = 4, f = 5, g = 0, h = 1, i = 2, j = 3, k = 4, l = 5}",  expectedMS = NORMAL_TIME },
+
+			new ExpectedTestResult() {testName = "ToString detection test", toPerform = (a) => a.EasyPrint(), input = testClass_ToStringTest, expectedOutput = "{TestClass_ToStringTest: a = 0, b = ObjectWithToString_ToStringReturnResult, c = ObjectWithToString_ToStringReturnResult, d = {ObjectWithoutToString}}",expectedMS = NORMAL_TIME}
 		}; 
         
         protected override List<ExpectedTestResult> getExpectedResults() {

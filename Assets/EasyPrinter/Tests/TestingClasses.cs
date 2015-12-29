@@ -181,7 +181,7 @@ namespace EasyPrinter.Test {
         public int c;
     }
 
-	internal class PrivateVarTest {
+	internal class TestClass_PrivateVarTest {
 		public int a = 0;
 		protected int b = 1;
 		internal int c = 2;
@@ -195,5 +195,20 @@ namespace EasyPrinter.Test {
 		private static int j = 3;
 		protected internal static int k = 4;
 		static int l = 5;
+	}
+
+	internal class ObjectWithToString {
+		public override string ToString (){return "ObjectWithToString_ToStringReturnResult";}
+	}
+
+	internal class ObjectInheritingFromAnObjectWithToString : ObjectWithToString {}
+
+	internal class ObjectWithoutToString {}
+
+	internal class TestClass_ToStringTest{
+		public int a = 0;
+		public ObjectWithToString b = new ObjectWithToString();
+		public ObjectInheritingFromAnObjectWithToString c = new ObjectInheritingFromAnObjectWithToString();
+		public ObjectWithoutToString d = new ObjectWithoutToString();
 	}
 }

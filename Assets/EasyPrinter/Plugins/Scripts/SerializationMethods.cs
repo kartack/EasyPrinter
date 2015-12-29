@@ -199,7 +199,11 @@ namespace EasyPrinter {
             if (toAdd is string) {
                 toAddTo.Append(toAdd);
             } else if (toAdd is ConvertedObject) {
-                toAddTo.ConvertToString((ConvertedObject)toAdd, printingConfiguration, depth);
+				if ((toAdd as ConvertedObject).hasToStringMethod) {
+					toAddTo.Append ((toAdd as ConvertedObject).originalObject.ToString ());
+				}else{
+					toAddTo.ConvertToString ((ConvertedObject)toAdd, printingConfiguration, depth);
+				}
             } else if (toAdd is ConvertedMap) {
                 toAddTo.ConvertToString((ConvertedMap)toAdd, printingConfiguration, depth+1);
             } else if (toAdd is ConvertedList) {

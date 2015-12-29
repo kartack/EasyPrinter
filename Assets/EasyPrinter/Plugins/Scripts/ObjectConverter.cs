@@ -2,16 +2,21 @@
 using System.Collections;
 using System.Collections.Generic;
 using System;
+using System.Reflection;
 
 namespace EasyPrinter {
 	internal class ConvertedObject {
         public string name;
         public List<KeyValuePair<string, object>> fields;
+		public object originalObject;
+		public bool hasToStringMethod;
 
         internal static ConvertedObject StartNewConvertedObject(object toConvert) {
-            return new ConvertedObject() {
+			return new ConvertedObject() {
                 name = ObjectConverter.GetNameOfObject(toConvert),
-                fields = new List<KeyValuePair<string, object>>()
+                fields = new List<KeyValuePair<string, object>>(),
+				originalObject = toConvert,
+				hasToStringMethod = (toConvert.GetType().GetMethod("ToString").DeclaringType != typeof(System.Object))
             };
         }
     }
