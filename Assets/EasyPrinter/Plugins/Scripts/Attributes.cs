@@ -22,24 +22,24 @@ namespace EasyPrinter {
         }
     }
 
-	[AttributeUsage(AttributeTargets.All, AllowMultiple = true)]
+	[AttributeUsage(AttributeExtensions.CLASS_AND_FIELD_ATTRIBUTE_TARGET, AllowMultiple = true)]
 	public class PrintOnly : EasyPrinterFieldAttribute {
         public PrintOnly(params string[] appliesTo) : this(true, appliesTo) { }
         public PrintOnly(bool inherits, params string[] appliesTo) : base(inherits, appliesTo) {}
     }
 
-	[AttributeUsage(AttributeTargets.All, AllowMultiple = true)]
+	[AttributeUsage(AttributeExtensions.CLASS_AND_FIELD_ATTRIBUTE_TARGET, AllowMultiple = true)]
 	public class DontPrint : EasyPrinterFieldAttribute {
         public DontPrint(params string[] appliesTo) : this(true, appliesTo){}
         public DontPrint(bool inherits, params string[] appliesTo) : base(inherits, appliesTo) {}
     }
 
-	[AttributeUsage(AttributeTargets.All, AllowMultiple = true)]
+	[AttributeUsage(AttributeExtensions.CLASS_ONLY_ATTRIBUTE_TARGET, AllowMultiple = true)]
 	public class UseToString : EasyPrinterAttributeRoot {
 		public UseToString(bool inherits = true) : base(inherits) {}
 	}
 
-	[AttributeUsage(AttributeTargets.All, AllowMultiple = true)]
+	[AttributeUsage(AttributeExtensions.CLASS_ONLY_ATTRIBUTE_TARGET, AllowMultiple = true)]
 	public class DontUseToString : EasyPrinterAttributeRoot {
 		public DontUseToString(bool inherits = true) : base(inherits) {}
 	}
@@ -47,7 +47,11 @@ namespace EasyPrinter {
     internal enum InputListType { NONE, PRINT_ONLY, DONT_PRINT}
 
     internal static class AttributeExtensions {
-		internal static BindingFlags BINDING_FLAGS_TO_USE_TO_RETRIEVE = BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public;
+		internal const AttributeTargets CLASS_ONLY_ATTRIBUTE_TARGET = AttributeTargets.Class | AttributeTargets.Enum | AttributeTargets.Struct | AttributeTargets.Interface;
+		internal const AttributeTargets FIELD_ONLY_ATTRIBUTE_TARGET = AttributeTargets.Field | AttributeTargets.Event | AttributeTargets.Property;
+		internal const AttributeTargets CLASS_AND_FIELD_ATTRIBUTE_TARGET = CLASS_ONLY_ATTRIBUTE_TARGET | FIELD_ONLY_ATTRIBUTE_TARGET;
+
+		internal const BindingFlags BINDING_FLAGS_TO_USE_TO_RETRIEVE = BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public;
 		private static char[] separatorCharacters = new char[] { ',', ';', '|', '/', '\\', '.' };
 
         internal static List<String> ConvertToStringList(string[] input) {
