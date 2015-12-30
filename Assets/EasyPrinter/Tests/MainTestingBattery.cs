@@ -53,6 +53,8 @@ namespace EasyPrinter.Test {
 		private static TestClass_NoExceptionBecauseTwoCopiesOfDontUseToString testClass_NoExceptionBecauseTwoCopiesOfDontUseToString = new TestClass_NoExceptionBecauseTwoCopiesOfDontUseToString();
 		private static TestClass_ClassForPrintingWithUseToStringOnRoot testClass_ClassForPrintingWithUseToStringOnRoot = new TestClass_ClassForPrintingWithUseToStringOnRoot();
 
+		private static TestClass_CheckBackerHidingSupport testClass_CheckBackerHidingSupport = new TestClass_CheckBackerHidingSupport () {a = 0, b = 2.0f, c = "three", d = new TestClass_OneSimpleMember (){ i = 4 }};
+
         static MainTestingBattery() {
             testClass_CycleA.nextObject = testClass_CycleC;
         }
@@ -120,7 +122,8 @@ namespace EasyPrinter.Test {
 			new ExpectedTestResult() {testName = "Exception for having both UseToString and DontUseToString", toPerform = (a) => a.EasyPrint(), input = testClass_ExceptionBecauseOfBothUseToStringAndDontUseToString, expectedException = new System.ArgumentException("We are trying to print an object of type: EasyPrinter.Test.ExceptionBecauseOfBothUseToStringAndDontUseToString but it has both attribute UseToString and DontUseToString, it should have only one of these applied to it, check any classes or structs that it inherits from."),  expectedMS = NORMAL_TIME },
 			new ExpectedTestResult() {testName = "No Exception for having both UseToString and DontUseToString when one isn't inherited", toPerform = (a) => a.EasyPrint(), input = testClass_NoExceptionBecauseOfBothUseToStringAndDontUseToString, expectedOutput = "{TestClass_NoExceptionBecauseOfBothUseToStringAndDontUseToString: a = {NoExceptionBecauseOfBothUseToStringAndDontUseToString}}",expectedMS = NORMAL_TIME},
 			new ExpectedTestResult() {testName = "No Exception for both having DontUseToString on parent and child class", toPerform = (a) => a.EasyPrint(), input = testClass_NoExceptionBecauseTwoCopiesOfDontUseToString, expectedOutput = "{TestClass_NoExceptionBecauseTwoCopiesOfDontUseToString: a = {NoExceptionBecauseTwoCopiesOfDontUseToString}}",expectedMS = NORMAL_TIME},
-			new ExpectedTestResult() {testName = "Testing that root object printed ignores UseToString", toPerform = (a) => a.EasyPrint(), input = testClass_ClassForPrintingWithUseToStringOnRoot, expectedOutput = "{TestClass_ClassForPrintingWithUseToStringOnRoot}",expectedMS = NORMAL_TIME}
+			new ExpectedTestResult() {testName = "Testing that root object printed ignores UseToString", toPerform = (a) => a.EasyPrint(), input = testClass_ClassForPrintingWithUseToStringOnRoot, expectedOutput = "{TestClass_ClassForPrintingWithUseToStringOnRoot}",expectedMS = NORMAL_TIME},
+			new ExpectedTestResult() {testName = "Testing that various types of property backers don't cause problems", toPerform = (a) => a.EasyPrint(), input = testClass_CheckBackerHidingSupport, expectedOutput = "{TestClass_CheckBackerHidingSupport: a = 0, b = 2, c = \"three\", d = {TestClass_OneSimpleMember: i = 4}}",expectedMS = NORMAL_TIME}
 		}; 
         
         protected override List<ExpectedTestResult> getExpectedResults() {

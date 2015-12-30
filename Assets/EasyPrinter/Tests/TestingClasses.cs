@@ -245,4 +245,11 @@ namespace EasyPrinter.Test {
 	[UseToString]internal class TestClass_ClassForPrintingWithUseToStringOnRoot {
 		public override string ToString (){return "This shouldn't be visible in the tests!";}
 	}
+
+	internal class TestClass_CheckBackerHidingSupport {
+		public int a { get; set;}
+		public float b { get; set;}
+		public string c { get; set; }
+		public TestClass_OneSimpleMember d {get; set;}
+	}
 }
