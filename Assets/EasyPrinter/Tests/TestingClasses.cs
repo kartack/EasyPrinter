@@ -211,4 +211,38 @@ namespace EasyPrinter.Test {
 		public ObjectInheritingFromAnObjectWithToString c = new ObjectInheritingFromAnObjectWithToString();
 		public ObjectWithoutToString d = new ObjectWithoutToString();
 	}
+
+	[UseToString]internal class ClassWithInheritingUseToString : ObjectWithToString {}
+	[UseToString(false)]internal class ClassWithNoninheritingUseToString : ObjectWithToString {}
+	[DontUseToString]internal class ClassWithInheritingDontUseToString : ObjectWithToString {}
+	[DontUseToString(false)]internal class ClassWithNoninheritingDontUseToString : ObjectWithToString {}
+
+	internal class ClassInhertingFrom_ClassWithInheritingUseToString : ClassWithInheritingUseToString {}
+	internal class ClassInhertingFrom_ClassWithNoninheritingUseToString : ClassWithNoninheritingUseToString {}
+	internal class ClassInhertingFrom_ClassWithInheritingDontUseToString : ClassWithInheritingDontUseToString {}
+	internal class ClassInhertingFrom_ClassWithNoninheritingDontUseToString : ClassWithNoninheritingDontUseToString {}
+
+	[DontUseToString]internal class ExceptionBecauseOfBothUseToStringAndDontUseToString : ClassWithInheritingUseToString{}
+	[DontUseToString]internal class NoExceptionBecauseOfBothUseToStringAndDontUseToString : ObjectWithToString{}
+	[DontUseToString]internal class NoExceptionBecauseTwoCopiesOfDontUseToString : ClassInhertingFrom_ClassWithInheritingDontUseToString{}
+
+	internal class TestClass_TestingPrintingUseToStringAndDontUseToString {
+		public ClassWithInheritingUseToString a = new ClassWithInheritingUseToString();
+		public ClassWithNoninheritingUseToString b = new ClassWithNoninheritingUseToString();
+		public ClassWithInheritingDontUseToString c = new ClassWithInheritingDontUseToString();
+		public ClassWithNoninheritingDontUseToString d = new ClassWithNoninheritingDontUseToString();
+
+		public ClassInhertingFrom_ClassWithInheritingUseToString e = new ClassInhertingFrom_ClassWithInheritingUseToString();
+		public ClassInhertingFrom_ClassWithNoninheritingUseToString f = new ClassInhertingFrom_ClassWithNoninheritingUseToString();
+		public ClassInhertingFrom_ClassWithInheritingDontUseToString g = new ClassInhertingFrom_ClassWithInheritingDontUseToString();
+		public ClassInhertingFrom_ClassWithNoninheritingDontUseToString h = new ClassInhertingFrom_ClassWithNoninheritingDontUseToString();
+	}
+
+	[DontUseToString]internal class TestClass_ExceptionBecauseOfBothUseToStringAndDontUseToString {public ExceptionBecauseOfBothUseToStringAndDontUseToString a = new ExceptionBecauseOfBothUseToStringAndDontUseToString();}
+	[DontUseToString]internal class TestClass_NoExceptionBecauseOfBothUseToStringAndDontUseToString : ObjectWithToString{public NoExceptionBecauseOfBothUseToStringAndDontUseToString a = new NoExceptionBecauseOfBothUseToStringAndDontUseToString();}
+	[DontUseToString]internal class TestClass_NoExceptionBecauseTwoCopiesOfDontUseToString : ClassInhertingFrom_ClassWithInheritingDontUseToString{public NoExceptionBecauseTwoCopiesOfDontUseToString a = new NoExceptionBecauseTwoCopiesOfDontUseToString();}
+
+	[UseToString]internal class TestClass_ClassForPrintingWithUseToStringOnRoot {
+		public override string ToString (){return "This shouldn't be visible in the tests!";}
+	}
 }

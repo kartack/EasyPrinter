@@ -47,6 +47,12 @@ namespace EasyPrinter.Test {
 
 		private static TestClass_ToStringTest testClass_ToStringTest = new TestClass_ToStringTest();
 
+		private static TestClass_TestingPrintingUseToStringAndDontUseToString testClass_TestingPrintingUseToStringAndDontUseToString = new TestClass_TestingPrintingUseToStringAndDontUseToString();
+		private static TestClass_ExceptionBecauseOfBothUseToStringAndDontUseToString testClass_ExceptionBecauseOfBothUseToStringAndDontUseToString = new TestClass_ExceptionBecauseOfBothUseToStringAndDontUseToString();
+		private static TestClass_NoExceptionBecauseOfBothUseToStringAndDontUseToString testClass_NoExceptionBecauseOfBothUseToStringAndDontUseToString = new TestClass_NoExceptionBecauseOfBothUseToStringAndDontUseToString();
+		private static TestClass_NoExceptionBecauseTwoCopiesOfDontUseToString testClass_NoExceptionBecauseTwoCopiesOfDontUseToString = new TestClass_NoExceptionBecauseTwoCopiesOfDontUseToString();
+		private static TestClass_ClassForPrintingWithUseToStringOnRoot testClass_ClassForPrintingWithUseToStringOnRoot = new TestClass_ClassForPrintingWithUseToStringOnRoot();
+
         static MainTestingBattery() {
             testClass_CycleA.nextObject = testClass_CycleC;
         }
@@ -108,7 +114,13 @@ namespace EasyPrinter.Test {
 
 			new ExpectedTestResult() {testName = "Various Accessor Type Test", toPerform = (a) => a.EasyPrint(), input = testClass_PrivateVarTest, expectedOutput = "{TestClass_PrivateVarTest: a = 0, b = 1, c = 2, d = 3, e = 4, f = 5, g = 0, h = 1, i = 2, j = 3, k = 4, l = 5}",  expectedMS = NORMAL_TIME },
 
-			new ExpectedTestResult() {testName = "ToString detection test", toPerform = (a) => a.EasyPrint(), input = testClass_ToStringTest, expectedOutput = "{TestClass_ToStringTest: a = 0, b = ObjectWithToString_ToStringReturnResult, c = ObjectWithToString_ToStringReturnResult, d = {ObjectWithoutToString}}",expectedMS = NORMAL_TIME}
+			new ExpectedTestResult() {testName = "ToString detection test", toPerform = (a) => a.EasyPrint(), input = testClass_ToStringTest, expectedOutput = "{TestClass_ToStringTest: a = 0, b = ObjectWithToString_ToStringReturnResult, c = ObjectWithToString_ToStringReturnResult, d = {ObjectWithoutToString}}",expectedMS = NORMAL_TIME},
+
+			new ExpectedTestResult() {testName = "UseToString and DontUseToString tests", toPerform = (a) => a.EasyPrint(), input = testClass_TestingPrintingUseToStringAndDontUseToString, expectedOutput = "{TestClass_TestingPrintingUseToStringAndDontUseToString: a = ObjectWithToString_ToStringReturnResult, b = ObjectWithToString_ToStringReturnResult, c = {ClassWithInheritingDontUseToString}, d = {ClassWithNoninheritingDontUseToString}, e = ObjectWithToString_ToStringReturnResult, f = ObjectWithToString_ToStringReturnResult, g = {ClassInhertingFrom_ClassWithInheritingDontUseToString}, h = ObjectWithToString_ToStringReturnResult}",expectedMS = NORMAL_TIME},
+			new ExpectedTestResult() {testName = "Exception for having both UseToString and DontUseToString", toPerform = (a) => a.EasyPrint(), input = testClass_ExceptionBecauseOfBothUseToStringAndDontUseToString, expectedException = new System.ArgumentException("We are trying to print an object of type: EasyPrinter.Test.ExceptionBecauseOfBothUseToStringAndDontUseToString but it has both attribute UseToString and DontUseToString, it should have only one of these applied to it, check any classes or structs that it inherits from."),  expectedMS = NORMAL_TIME },
+			new ExpectedTestResult() {testName = "No Exception for having both UseToString and DontUseToString when one isn't inherited", toPerform = (a) => a.EasyPrint(), input = testClass_NoExceptionBecauseOfBothUseToStringAndDontUseToString, expectedOutput = "{TestClass_NoExceptionBecauseOfBothUseToStringAndDontUseToString: a = {NoExceptionBecauseOfBothUseToStringAndDontUseToString}}",expectedMS = NORMAL_TIME},
+			new ExpectedTestResult() {testName = "No Exception for both having DontUseToString on parent and child class", toPerform = (a) => a.EasyPrint(), input = testClass_NoExceptionBecauseTwoCopiesOfDontUseToString, expectedOutput = "{TestClass_NoExceptionBecauseTwoCopiesOfDontUseToString: a = {NoExceptionBecauseTwoCopiesOfDontUseToString}}",expectedMS = NORMAL_TIME},
+			new ExpectedTestResult() {testName = "Testing that root object printed ignores UseToString", toPerform = (a) => a.EasyPrint(), input = testClass_ClassForPrintingWithUseToStringOnRoot, expectedOutput = "{TestClass_ClassForPrintingWithUseToStringOnRoot}",expectedMS = NORMAL_TIME}
 		}; 
         
         protected override List<ExpectedTestResult> getExpectedResults() {

@@ -6,27 +6,43 @@ using System.Reflection;
 
 namespace EasyPrinter {
 
-    public class EasyPrinterAttributeRoot : Attribute {
-        internal List<string> ourParams = null;
-        internal bool inherits = true;
+	public class EasyPrinterAttributeRoot : Attribute {
+		internal bool inherits = true;
 
-        public EasyPrinterAttributeRoot(bool inherits, params string[] appliesTo) {
-            this.inherits = inherits;
+		public EasyPrinterAttributeRoot(bool inherits) {
+			this.inherits = inherits;
+		}
+	}
+
+	public class EasyPrinterFieldAttribute : EasyPrinterAttributeRoot {
+        internal List<string> ourParams = null;
+        
+		public EasyPrinterFieldAttribute(bool inherits, params string[] appliesTo) : base(inherits) {
             this.ourParams = AttributeExtensions.ConvertToStringList(appliesTo);
         }
     }
 
 	[AttributeUsage(AttributeTargets.All, AllowMultiple = true)]
-    public class PrintOnly : EasyPrinterAttributeRoot {
+	public class PrintOnly : EasyPrinterFieldAttribute {
         public PrintOnly(params string[] appliesTo) : this(true, appliesTo) { }
         public PrintOnly(bool inherits, params string[] appliesTo) : base(inherits, appliesTo) {}
     }
 
 	[AttributeUsage(AttributeTargets.All, AllowMultiple = true)]
-    public class DontPrint : EasyPrinterAttributeRoot {
+	public class DontPrint : EasyPrinterFieldAttribute {
         public DontPrint(params string[] appliesTo) : this(true, appliesTo){}
         public DontPrint(bool inherits, params string[] appliesTo) : base(inherits, appliesTo) {}
     }
+
+	[AttributeUsage(AttributeTargets.All, AllowMultiple = true)]
+	public class UseToString : EasyPrinterAttributeRoot {
+		public UseToString(bool inherits = true) : base(inherits) {}
+	}
+
+	[AttributeUsage(AttributeTargets.All, AllowMultiple = true)]
+	public class DontUseToString : EasyPrinterAttributeRoot {
+		public DontUseToString(bool inherits = true) : base(inherits) {}
+	}
 
     internal enum InputListType { NONE, PRINT_ONLY, DONT_PRINT}
 
@@ -77,13 +93,13 @@ namespace EasyPrinter {
             public List<string> markedFields;
         }
         private static bool[] ALL_BOOL_VALUES = new bool[] { false, true };
-        private static AttributeReport GetAttributeReport<T>(object obj) where T : EasyPrinterAttributeRoot {
+		private static AttributeReport GetAttributeReport<T>(object obj) where T : EasyPrinterFieldAttribute {
 			AttributeReport toRet = new AttributeReport(){hasAttribute = false, markedFields = new List<string>()};
             
             //check the root object for the tag
             foreach(var curInheritance in ALL_BOOL_VALUES) {
 				foreach (T cur in obj.GetType().GetCustomAttributes(typeof(T), curInheritance)) {//check for both inheriting and non-inheriting tags
-					if (cur.inherits == curInheritance) {
+					if (cur.inherits == curInheritance || !curInheritance) {
 		                toRet.hasAttribute = true;
                         toRet.markedFields.AddRange(cur.ourParams);
                     }
@@ -94,7 +110,7 @@ namespace EasyPrinter {
             foreach(var curField in GetFieldsAndProperties(obj)) {
                 foreach (var curInheritance in ALL_BOOL_VALUES) {
                     foreach (T cur in curField.GetCustomAttributes(typeof(T), curInheritance)) {//first check for inheriting tags
-                        if (cur.inherits == curInheritance) {
+						if (cur.inherits == curInheritance || !curInheritance) {
                             toRet.hasAttribute = true;
                             toRet.markedFields.Add(curField.Name);
                         }
@@ -155,6 +171,51 @@ namespace EasyPrinter {
                 throw new ArgumentException("GetListOfFieldsToPrint given a non-null input list but not given a InputListType we know, listType = " + listType);                   
             }
         }
+
+		internal static bool IsModifiedByAttribute<T>(object obj) where T : EasyPrinterAttributeRoot {
+			Type objType = obj.GetType ();
+			foreach (var curInheritance in ALL_BOOL_VALUES) {
+				foreach (var cur in objType.GetCustomAttributes(curInheritance)) {
+					if(cur is T && ((cur as EasyPrinterAttributeRoot).inherits == curInheritance || !curInheritance)){
+						return true;
+					}
+				}
+			}
+			return false;
+		}
+
+		internal static bool IsModifiedByAttribute<T>(object obj, string field) where T : EasyPrinterFieldAttribute{
+			Type objType = obj.GetType ();
+			foreach (var curInheritance in ALL_BOOL_VALUES) {
+				foreach (var cur in objType.GetCustomAttributes(curInheritance)) {
+					if(cur is T && (cur as EasyPrinterFieldAttribute).ourParams.Contains(field)
+						&& ((cur as EasyPrinterFieldAttribute).inherits == curInheritance || !curInheritance)){
+						return true;
+					}
+				}
+			}
+
+			MemberInfo[] fieldInfo = new MemberInfo[]{
+				objType.GetField (field, BINDING_FLAGS_TO_USE_TO_RETRIEVE),
+				objType.GetProperty(field, BINDING_FLAGS_TO_USE_TO_RETRIEVE)
+			};
+
+			foreach (var curMemberType in fieldInfo) {
+				if (curMemberType == null) {
+					continue;
+				}
+				foreach (var curInheritance in ALL_BOOL_VALUES) {
+					foreach (var cur in curMemberType.GetCustomAttributes(curInheritance)) {
+						if (cur is T && (cur as EasyPrinterFieldAttribute).ourParams.Contains (field)
+							&& ((cur as EasyPrinterFieldAttribute).inherits == curInheritance || !curInheritance)) {
+							return true;
+						}
+					}
+				}
+			}
+
+			return false;
+		}
 
         internal static string ToExplodedString(this IEnumerable a) {
             if(ReferenceEquals(a, null)) {

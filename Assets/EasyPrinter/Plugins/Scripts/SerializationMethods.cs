@@ -199,7 +199,17 @@ namespace EasyPrinter {
             if (toAdd is string) {
                 toAddTo.Append(toAdd);
             } else if (toAdd is ConvertedObject) {
-				if ((toAdd as ConvertedObject).hasToStringMethod) {
+				bool hasToStringMethod = (toAdd as ConvertedObject).hasToStringMethod;
+				bool isModifiedByUseToStringAttribute = AttributeExtensions.IsModifiedByAttribute<UseToString>((toAdd as ConvertedObject).originalObject);
+				bool isModifieByDontUseToStringAttribute = AttributeExtensions.IsModifiedByAttribute<DontUseToString>((toAdd as ConvertedObject).originalObject);
+
+				if (isModifiedByUseToStringAttribute && isModifieByDontUseToStringAttribute) {
+					throw new System.ArgumentException ("We are trying to print an object of type: "+(toAdd as ConvertedObject).originalObject.GetType ().FullName + " but it has both attribute UseToString and DontUseToString, it should have only one of these applied to it, check any classes or structs that it inherits from.");
+				} else if (isModifiedByUseToStringAttribute) {
+					toAddTo.Append ((toAdd as ConvertedObject).originalObject.ToString ());
+				} else if (isModifieByDontUseToStringAttribute) {
+					toAddTo.ConvertToString ((ConvertedObject)toAdd, printingConfiguration, depth);
+				} else if (hasToStringMethod) {
 					toAddTo.Append ((toAdd as ConvertedObject).originalObject.ToString ());
 				}else{
 					toAddTo.ConvertToString ((ConvertedObject)toAdd, printingConfiguration, depth);
