@@ -44,6 +44,34 @@ namespace EasyPrinter {
 		public DontUseToString(bool inherits = true) : base(inherits) {}
 	}
 
+	internal struct IEnumerablePrintingRange {
+		internal int printFrom;
+		internal int printTo;
+
+		internal IEnumerablePrintingRange(int printFrom, int printTo){
+			this.printFrom = printFrom;
+			this.printTo = printTo;
+		}
+	}
+
+	[AttributeUsage(AttributeExtensions.FIELD_ONLY_ATTRIBUTE_TARGET, AllowMultiple = false)]
+	public class PrintOnlyRange : EasyPrinterAttributeRoot {
+		private int? numToPrint = null;
+		private int? startFrom = null;
+		private int? endAt = null;
+
+		internal PrintOnlyRange(int? numToPrint = null, int? startFrom = null, int? endAt = null, bool inherits = true) : base(inherits) {
+			this.numToPrint = numToPrint;
+			this.startFrom = startFrom;
+			this.endAt = endAt;
+		}
+	
+		internal IEnumerablePrintingRange GetPrintingRange(int length){
+
+		}
+	}
+
+
     internal enum InputListType { NONE, PRINT_ONLY, DONT_PRINT}
 
     internal static class AttributeExtensions {
@@ -176,28 +204,28 @@ namespace EasyPrinter {
             }
         }
 
-		internal static bool IsModifiedByAttribute<T>(object obj) where T : EasyPrinterAttributeRoot {
+		internal static bool IsModifiedByClassAttribute<T>(object obj) where T : EasyPrinterAttributeRoot {
+			return GetClassAttribute<T> (obj) != null;
+		}
+
+		internal static T GetClassAttribute<T>(object obj) where T : EasyPrinterAttributeRoot {
 			Type objType = obj.GetType ();
 			foreach (var curInheritance in ALL_BOOL_VALUES) {
 				foreach (var cur in objType.GetCustomAttributes(curInheritance)) {
 					if(cur is T && ((cur as EasyPrinterAttributeRoot).inherits == curInheritance || !curInheritance)){
-						return true;
+						return cur as T;
 					}
 				}
 			}
-			return false;
+			return null;
 		}
 
-		internal static bool IsModifiedByAttribute<T>(object obj, string field) where T : EasyPrinterFieldAttribute{
+		internal static bool IsModifiedByFieldAttribute<T>(object obj, string field) where T : EasyPrinterAttributeRoot {
+			return GetFieldAttribute<T> (obj, field) != null;
+		}
+
+		internal static T GetFieldAttribute<T>(object obj, string field) where T : EasyPrinterAttributeRoot {
 			Type objType = obj.GetType ();
-			foreach (var curInheritance in ALL_BOOL_VALUES) {
-				foreach (var cur in objType.GetCustomAttributes(curInheritance)) {
-					if(cur is T && (cur as EasyPrinterFieldAttribute).ourParams.Contains(field)
-						&& ((cur as EasyPrinterFieldAttribute).inherits == curInheritance || !curInheritance)){
-						return true;
-					}
-				}
-			}
 
 			MemberInfo[] fieldInfo = new MemberInfo[]{
 				objType.GetField (field, BINDING_FLAGS_TO_USE_TO_RETRIEVE),
@@ -212,13 +240,31 @@ namespace EasyPrinter {
 					foreach (var cur in curMemberType.GetCustomAttributes(curInheritance)) {
 						if (cur is T && (cur as EasyPrinterFieldAttribute).ourParams.Contains (field)
 							&& ((cur as EasyPrinterFieldAttribute).inherits == curInheritance || !curInheritance)) {
-							return true;
+							return cur as T;
 						}
 					}
 				}
 			}
 
-			return false;
+			return null;
+		}
+
+		internal static bool IsModifiedByClassOrFieldAttribute<T>(object obj, string field) where T : EasyPrinterFieldAttribute{
+			return GetClassOrFieldAttribute<T> (obj, field) != null;
+		}
+
+		internal static T GetClassOrFieldAttribute<T>(object obj, string field) where T : EasyPrinterFieldAttribute {
+			Type objType = obj.GetType ();
+			foreach (var curInheritance in ALL_BOOL_VALUES) {
+				foreach (var cur in objType.GetCustomAttributes(curInheritance)) {
+					if(cur is T && (cur as EasyPrinterFieldAttribute).ourParams.Contains(field)
+						&& ((cur as EasyPrinterFieldAttribute).inherits == curInheritance || !curInheritance)){
+						return cur as T;
+					}
+				}
+			}
+
+			return GetFieldAttribute<T> (obj, field);
 		}
 
         internal static string ToExplodedString(this IEnumerable a) {
